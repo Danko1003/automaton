@@ -20,7 +20,8 @@ public class Automaton
     public Automaton(int numberOfCells)
     {
         this.numberOfCells = numberOfCells;
-        state = new int[numberOfCells];
+        state = new int[numberOfCells + 1];
+        
         // Seed the automaton with a single 'on' cell in the middle.
         state[numberOfCells / 2] = 1;
     }
@@ -28,43 +29,35 @@ public class Automaton
     /**
      * Print the current state of the automaton.
      */
-    public void print()
-    {
-        for(int cellValue : state) {
-            if(cellValue == 1) {
-                System.out.print("*");
-            }
-            else {
-                System.out.print(" ");
-            }
+    public void print() {
+        for (int i = 0; i < numberOfCells; i++) {
+            System.out.print(state[i] == 1 ? "*" : " ");
         }
         System.out.println();
-    }   
+    }
+      
     
     /**
      * Update the automaton to its next state.
      */
     public void update() {
-        int[] nextState = new int[state.length];
-    
-        
+        int[] nextState = new int[state.length]; // still includes dummy at the end
         int left = 0;
         int center = state[0];
     
-        for (int i = 0; i < state.length; i++) {
-            
-            int right = (i + 1 < state.length) ? state[i + 1] : 0;
+        for (int i = 0; i < numberOfCells; i++) { // only iterate over real cells
+            int right = state[i + 1]; // no need to check bounds now
+            nextState[i] = calculateNextState(left, center, right);
     
-            
-            nextState[i] = (left + center + right) % 2;
-    
-            
             left = center;
             center = right;
         }
     
-        
-        state = nextState;
+        // Copy only the real cells back, keep the dummy 0 at the end
+        for (int i = 0; i < numberOfCells; i++) {
+            state[i] = nextState[i];
+        }
+        state[numberOfCells] = 0; // ensure the dummy remains 0
     }
 
     private int calculateNextState(int left, int center, int right) {
